@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 
 const niches = [
-  "plumbers",
-  "cleaning companies",
-  "med spas",
-  "landscapers",
-  "roofers",
+  { name: "plumbers", href: "/industries/plumbers" },
+  { name: "cleaning companies", href: "/#cleaning-companies" },
+  { name: "med spas", href: "/#med-spas" },
+  { name: "landscapers", href: "/#landscapers" },
+  { name: "roofers", href: "/#roofers" },
 ];
 
 const plans = [
@@ -87,6 +87,7 @@ export default function Home() {
           <nav className="hidden items-center gap-7 text-sm text-[#4f514b] md:flex">
             <a href="#how">How it works</a>
             <a href="#niches">Industries</a>
+            <a href="/app">Demo</a>
             <a href="#pricing">Pricing</a>
           </nav>
           <a
@@ -202,10 +203,10 @@ export default function Home() {
           {niches.map((niche) => (
             <a
               className="rounded-md border border-[#cfcabf] bg-white px-4 py-3 font-medium transition hover:border-[#123c69]"
-              href={`/#${niche.replaceAll(" ", "-")}`}
-              key={niche}
+              href={niche.href}
+              key={niche.name}
             >
-              {niche}
+              {niche.name}
             </a>
           ))}
         </div>
