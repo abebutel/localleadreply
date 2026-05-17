@@ -94,3 +94,15 @@ Social media accounts should be accessed through browser sessions or official co
 - Stripe.
 - Google Search Console.
 - Analytics provider, such as Plausible or Google Analytics.
+
+## Current Pilot Workflow
+
+The first usable pilot workflow is intentionally email-first:
+
+1. A visitor submits `/capture/northside-plumbing`.
+2. The app validates consent, name, phone, and service type.
+3. The app emails the configured pilot inbox through Resend.
+4. The page shows the approved text-back copy as a preview.
+
+SMS sending is not enabled yet. Add Twilio, A2P 10DLC registration, opt-out
+handling, and persistent lead storage before turning on production text-back.

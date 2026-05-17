@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   CheckCircle2,
   Clock3,
   MessageSquareText,
@@ -175,6 +176,13 @@ export default function AppDemoPage() {
                 Thanks for reaching out to Northside Plumbing. We received your
                 request and can help. What time today is best for a quick call?
               </p>
+              <Link
+                className="mt-5 inline-flex h-11 items-center gap-2 rounded-md bg-[#d94f30] px-4 font-semibold text-white transition hover:bg-[#bf4227]"
+                href="/capture/northside-plumbing"
+              >
+                Open sample lead form
+                <ArrowRight size={17} aria-hidden="true" />
+              </Link>
             </section>
           </aside>
         </div>
