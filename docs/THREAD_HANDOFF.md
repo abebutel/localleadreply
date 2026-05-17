@@ -98,6 +98,7 @@ Built and deployed:
 - Dashboard lead status updates for `new`, `contacted`, `booked`, and `lost`.
 - Privacy-light first-party analytics in Supabase with a seven-day dashboard
   summary.
+- Daily owner digest endpoint scheduled through Vercel Cron.
 - Owner email notifications include signed direct action links when the lead is
   stored successfully.
 - Optional Basic Auth dashboard protection through `ADMIN_PASSWORD`.
@@ -146,6 +147,7 @@ Known Vercel env vars used:
 - `ADMIN_USERNAME`
 - `ADMIN_PASSWORD`
 - `LEAD_ACTION_SECRET`
+- `CRON_SECRET`
 
 Do not store secrets in the repo. `.env.local` is ignored.
 
@@ -176,6 +178,14 @@ dynamic and read through the server-side Supabase service role client.
 Analytics events live in `public.analytics_events`. Public page views are
 recorded client-side; pilot request and lead capture conversions are recorded
 server-side after the corresponding notification email succeeds.
+
+Daily summary:
+- Route: `/api/daily-summary`
+- Schedule: `0 13 * * *` in `vercel.json`
+- Sends to `PILOT_TO_EMAIL`
+- Requires `Authorization: Bearer ${CRON_SECRET}`
+- Includes new leads from the last 24 hours, open lead count, booked count, and
+  seven-day analytics.
 
 ## Outreach Plan
 
@@ -210,7 +220,7 @@ instructions, and ask the owner only for dashboard actions that require login.
 ## Recommended Next Work
 
 Priority order:
-1. Rerun `supabase/schema.sql` to add the `analytics_events` table.
+1. Set `CRON_SECRET` in Vercel so the daily summary cron can run.
 2. Add Google Search Console submission.
 3. Start first Florida plumber outreach campaign.
 4. Add Twilio only after A2P 10DLC and opt-out handling are planned.

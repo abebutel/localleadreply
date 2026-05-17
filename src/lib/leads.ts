@@ -68,6 +68,48 @@ export async function listRecentLeads(limit = 20) {
   return data as StoredLead[];
 }
 
+export async function getLeadDigestSummary() {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return {
+      newToday: 0,
+      openLeads: 0,
+      bookedToday: 0,
+      recentLeads: [] as StoredLead[],
+    };
+  }
+
+  const since = new Date();
+  since.setDate(since.getDate() - 1);
+
+  const [{ data: recentLeads }, { count: openLeads }, { count: bookedToday }] =
+    await Promise.all([
+      supabase
+        .from("leads")
+        .select("*")
+        .gte("created_at", since.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(10),
+      supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["new", "contacted"]),
+      supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "booked")
+        .gte("status_updated_at", since.toISOString()),
+    ]);
+
+  return {
+    newToday: recentLeads?.length || 0,
+    openLeads: openLeads || 0,
+    bookedToday: bookedToday || 0,
+    recentLeads: (recentLeads || []) as StoredLead[],
+  };
+}
+
 export async function updateLeadStatus(id: string, status: LeadStatus) {
   const supabase = getSupabaseAdmin();
 

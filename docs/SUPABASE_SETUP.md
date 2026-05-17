@@ -8,10 +8,14 @@ Add these to the Vercel project:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
 ```
 
 The app only uses the service role key on the server. Do not expose it in client
 components.
+
+`CRON_SECRET` should be a random long value. Vercel sends it to the daily
+summary endpoint as a bearer token when the cron job runs.
 
 ## Create The Supabase Tables
 
