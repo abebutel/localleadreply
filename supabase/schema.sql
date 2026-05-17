@@ -9,10 +9,29 @@ create table if not exists public.leads (
   message text,
   consent_given boolean not null default false,
   status text not null default 'new',
+  status_updated_at timestamptz,
   auto_reply_preview text,
   source text not null default 'capture_form',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  constraint leads_status_check check (status in ('new', 'contacted', 'booked', 'lost'))
 );
+
+alter table public.leads
+  add column if not exists status_updated_at timestamptz;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'leads_status_check'
+  ) then
+    alter table public.leads
+      add constraint leads_status_check
+      check (status in ('new', 'contacted', 'booked', 'lost'));
+  end if;
+end
+$$;
 
 create index if not exists leads_business_slug_created_at_idx
   on public.leads (business_slug, created_at desc);

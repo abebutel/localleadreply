@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createLead } from "@/lib/leads";
+import { makeLeadStatusActionUrl } from "@/lib/lead-actions";
 import { getPilotBusiness } from "@/lib/pilot-businesses";
 
 type LeadRequest = {
@@ -21,6 +22,8 @@ function clean(value: unknown, maxLength = 500) {
 function makeOwnerEmail({
   businessName,
   data,
+  dashboardUrl,
+  actionUrls,
 }: {
   businessName: string;
   data: {
@@ -29,6 +32,12 @@ function makeOwnerEmail({
     email: string;
     service: string;
     message: string;
+  };
+  dashboardUrl: string | null;
+  actionUrls: {
+    contacted: string | null;
+    booked: string | null;
+    lost: string | null;
   };
 }) {
   return `
@@ -44,6 +53,14 @@ ${data.message || "Not provided"}
 
 Consent:
 The lead checked the form consent box for follow-up by call or text.
+
+Next actions:
+${actionUrls.contacted ? `Mark contacted: ${actionUrls.contacted}` : "Mark contacted: open the dashboard"}
+${actionUrls.booked ? `Mark booked: ${actionUrls.booked}` : "Mark booked: open the dashboard"}
+${actionUrls.lost ? `Mark lost: ${actionUrls.lost}` : "Mark lost: open the dashboard"}
+
+Dashboard:
+${dashboardUrl || "Set NEXT_PUBLIC_APP_URL to include dashboard links."}
   `.trim();
 }
 
@@ -102,6 +119,18 @@ export async function POST(request: Request) {
     source: "capture_form",
   });
 
+  const leadId = storedLead.ok ? storedLead.id : null;
+  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL
+    ? new URL("/app", process.env.NEXT_PUBLIC_APP_URL).toString()
+    : null;
+  const actionUrls = {
+    contacted: leadId
+      ? makeLeadStatusActionUrl({ leadId, status: "contacted" })
+      : null,
+    booked: leadId ? makeLeadStatusActionUrl({ leadId, status: "booked" }) : null,
+    lost: leadId ? makeLeadStatusActionUrl({ leadId, status: "lost" }) : null,
+  };
+
   if (!resendApiKey || !fromEmail || !toEmail) {
     return NextResponse.json(
       {
@@ -123,7 +152,12 @@ export async function POST(request: Request) {
       to: [toEmail],
       reply_to: data.email || toEmail,
       subject: `New lead for ${business.name}: ${data.service}`,
-      text: makeOwnerEmail({ businessName: business.name, data }),
+      text: makeOwnerEmail({
+        businessName: business.name,
+        data,
+        dashboardUrl,
+        actionUrls,
+      }),
     }),
   });
 

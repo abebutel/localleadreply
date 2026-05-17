@@ -10,7 +10,9 @@ import {
   Send,
   Settings,
 } from "lucide-react";
-import { listRecentLeads } from "@/lib/leads";
+import { hasAdminPassword } from "@/lib/admin-auth";
+import { leadStatuses, listRecentLeads, type LeadStatus } from "@/lib/leads";
+import { updateLeadStatusAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "LocalLeadReply Demo Dashboard",
@@ -53,23 +55,79 @@ const setupItems = [
   "Owner notification email",
 ];
 
+const statusLabels: Record<LeadStatus, string> = {
+  new: "Needs call",
+  contacted: "Contacted",
+  booked: "Booked",
+  lost: "Lost",
+};
+
+const statusStyles: Record<LeadStatus, string> = {
+  new: "border-[#d7d1c4] bg-white text-[#123c69]",
+  contacted: "border-[#c8d6e5] bg-[#edf5fb] text-[#123c69]",
+  booked: "border-[#b9dec9] bg-[#e6f2ec] text-[#1f7049]",
+  lost: "border-[#f0c7b8] bg-[#fff4ed] text-[#9b341f]",
+};
+
+type DashboardLead =
+  | {
+      id: string;
+      name: string;
+      need: string;
+      source: string;
+      status: LeadStatus;
+      phone: string;
+      email: string | null;
+      message: string | null;
+      time: string;
+    }
+  | {
+      name: string;
+      need: string;
+      source: string;
+      status: string;
+      time: string;
+    };
+
 export const dynamic = "force-dynamic";
 
-export default async function AppDemoPage() {
+type Props = {
+  searchParams?: Promise<{
+    updated?: string;
+  }>;
+};
+
+export default async function AppDemoPage({ searchParams }: Props) {
+  const params = await searchParams;
   const storedLeads = await listRecentLeads(10);
-  const leads =
+  const leads: DashboardLead[] =
     storedLeads.length > 0
       ? storedLeads.map((lead) => ({
+          id: lead.id,
           name: lead.customer_name,
           need: lead.service,
           source: lead.business_name,
-          status: lead.status === "new" ? "Needs call" : lead.status,
+          status: lead.status,
+          phone: lead.phone,
+          email: lead.email,
+          message: lead.message,
           time: new Intl.DateTimeFormat("en-US", {
             hour: "numeric",
             minute: "2-digit",
           }).format(new Date(lead.created_at)),
         }))
       : sampleLeads;
+  const statusCounts = storedLeads.reduce(
+    (counts, lead) => ({
+      ...counts,
+      [lead.status]: (counts[lead.status] || 0) + 1,
+    }),
+    {} as Record<LeadStatus, number>,
+  );
+  const activeCount = storedLeads.length
+    ? (statusCounts.new || 0) + (statusCounts.contacted || 0)
+    : 3;
+  const hasPassword = hasAdminPassword();
 
   return (
     <main className="min-h-screen bg-[#f4f1ea] text-[#151515]">
@@ -93,18 +151,30 @@ export default async function AppDemoPage() {
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-normal text-[#d94f30]">
-              Demo workspace
+              Owner workspace
             </p>
             <h1 className="mt-2 text-4xl font-semibold tracking-normal">
               Northside Plumbing lead inbox
             </h1>
           </div>
           <p className="max-w-xl leading-7 text-[#565850]">
-            This is a static preview of the first app workflow: capture the
-            lead, send an approved text-back, and keep the next human follow-up
-            visible.
+            Capture each request, keep the next follow-up visible, and mark the
+            outcome from the dashboard or directly from the owner email.
           </p>
         </div>
+
+        {!hasPassword ? (
+          <div className="mb-5 rounded-md border border-[#f0c7b8] bg-[#fff4ed] px-4 py-3 text-sm font-semibold text-[#9b341f]">
+            Set ADMIN_PASSWORD in production to require owner login for this
+            dashboard. Until then, the page remains open for setup testing.
+          </div>
+        ) : null}
+
+        {params?.updated ? (
+          <div className="mb-5 rounded-md border border-[#b9dec9] bg-[#e6f2ec] px-4 py-3 text-sm font-semibold text-[#1f7049]">
+            Lead marked {params.updated}.
+          </div>
+        ) : null}
 
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
@@ -123,14 +193,14 @@ export default async function AppDemoPage() {
               </div>
               </div>
               <span className="rounded-md bg-[#e6f2ec] px-3 py-1 text-sm font-semibold text-[#1f7049]">
-                3 active
+                {activeCount} active
               </span>
             </div>
             <div className="space-y-3">
               {leads.map((lead) => (
                 <article
                   className="grid gap-3 rounded-md border border-[#ebe7df] bg-[#fbfaf7] p-4 md:grid-cols-[1fr_auto]"
-                  key={lead.name}
+                  key={"id" in lead ? lead.id : lead.name}
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -140,14 +210,56 @@ export default async function AppDemoPage() {
                       </span>
                     </div>
                     <p className="mt-2 text-[#565850]">{lead.need}</p>
+                    {"phone" in lead ? (
+                      <div className="mt-3 flex flex-wrap gap-2 text-sm text-[#565850]">
+                        <a className="font-semibold text-[#123c69]" href={`tel:${lead.phone}`}>
+                          {lead.phone}
+                        </a>
+                        {lead.email ? (
+                          <a className="font-semibold text-[#123c69]" href={`mailto:${lead.email}`}>
+                            {lead.email}
+                          </a>
+                        ) : null}
+                        {lead.message ? <span>{lead.message}</span> : null}
+                      </div>
+                    ) : null}
                   </div>
-                  <div className="flex items-center gap-3 md:justify-end">
+                  <div className="flex flex-col gap-3 md:items-end md:justify-between">
                     <span className="text-sm font-semibold text-[#123c69]">
                       {lead.time}
                     </span>
-                    <span className="rounded-md border border-[#d7d1c4] bg-white px-3 py-2 text-sm font-semibold">
-                      {lead.status}
+                    <span
+                      className={`rounded-md border px-3 py-2 text-sm font-semibold ${
+                        typeof lead.status === "string" && lead.status in statusStyles
+                          ? statusStyles[lead.status as LeadStatus]
+                          : "border-[#d7d1c4] bg-white"
+                      }`}
+                    >
+                      {typeof lead.status === "string" && lead.status in statusLabels
+                        ? statusLabels[lead.status as LeadStatus]
+                        : lead.status}
                     </span>
+                    {"id" in lead ? (
+                      <form
+                        action={updateLeadStatusAction}
+                        className="flex flex-wrap gap-2 md:justify-end"
+                      >
+                        <input name="leadId" type="hidden" value={lead.id} />
+                        {leadStatuses
+                          .filter((status) => status !== lead.status)
+                          .map((status) => (
+                            <button
+                              className="h-9 rounded-md border border-[#d7d1c4] bg-white px-3 text-xs font-semibold text-[#565850] transition hover:border-[#123c69] hover:text-[#123c69]"
+                              key={status}
+                              name="status"
+                              type="submit"
+                              value={status}
+                            >
+                              {statusLabels[status]}
+                            </button>
+                          ))}
+                      </form>
+                    ) : null}
                   </div>
                 </article>
               ))}
@@ -163,8 +275,8 @@ export default async function AppDemoPage() {
               <div className="mt-5 grid grid-cols-3 gap-3">
                 {[
                   ["18 sec", "fastest reply"],
-                  ["2", "calls needed"],
-                  ["1", "follow-up due"],
+                  [String(statusCounts.new || 2), "calls needed"],
+                  [String(statusCounts.contacted || 1), "follow-ups open"],
                 ].map(([value, label]) => (
                   <div className="rounded-md bg-[#f4f1ea] p-3" key={label}>
                     <p className="text-2xl font-semibold">{value}</p>

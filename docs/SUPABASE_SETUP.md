@@ -22,6 +22,10 @@ In Supabase:
 3. Paste the contents of `supabase/schema.sql`.
 4. Run the query.
 
+If the table already exists from the first MVP setup, run the current file
+again. It safely adds `status_updated_at` and the status constraint used by the
+owner dashboard.
+
 ## Verify
 
 After deploy:
@@ -44,6 +48,7 @@ The first table is intentionally small:
 - `message`
 - `consent_given`
 - `status`
+- `status_updated_at`
 - `auto_reply_preview`
 - `source`
 - `created_at`

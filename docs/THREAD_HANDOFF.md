@@ -94,6 +94,10 @@ Built and deployed:
 - Supabase-backed lead storage.
 - Dashboard that shows real Supabase leads when present and sample data
   otherwise.
+- Dashboard lead status updates for `new`, `contacted`, `booked`, and `lost`.
+- Owner email notifications include signed direct action links when the lead is
+  stored successfully.
+- Optional Basic Auth dashboard protection through `ADMIN_PASSWORD`.
 - Branded favicon/icon routes.
 - Sitemap and robots routes.
 
@@ -108,7 +112,9 @@ Verified by the owner:
 3. App stores the lead in Supabase.
 4. App sends an email through Resend.
 5. Dashboard reads recent leads from Supabase.
-6. SMS is not enabled yet.
+6. Owner can mark the lead contacted, booked, or lost from `/app` or the email
+   action links.
+7. SMS is not enabled yet.
 
 The current flow is email-first by design. Do not claim that text messages are
 being sent until Twilio, A2P 10DLC registration, opt-out handling, and message
@@ -131,6 +137,9 @@ Known Vercel env vars used:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `LEAD_ACTION_SECRET`
 
 Do not store secrets in the repo. `.env.local` is ignored.
 
@@ -191,12 +200,13 @@ instructions, and ask the owner only for dashboard actions that require login.
 ## Recommended Next Work
 
 Priority order:
-1. Add authenticated owner/admin access for `/app`.
-2. Add lead status updates: new, contacted, booked, lost.
-3. Add owner email alerts for new leads with direct action links.
-4. Add business configuration in Supabase instead of hardcoded pilot business.
-5. Add Twilio only after A2P 10DLC and opt-out handling are planned.
-6. Add Google Search Console submission and basic analytics.
-7. Start first Florida plumber outreach campaign.
+1. Set `ADMIN_PASSWORD` in Vercel before treating `/app` as private.
+2. Rerun `supabase/schema.sql` to add `status_updated_at` and the status
+   constraint, though status updates fall back gracefully if the column is not
+   present yet.
+3. Add business configuration in Supabase instead of hardcoded pilot business.
+4. Add Twilio only after A2P 10DLC and opt-out handling are planned.
+5. Add Google Search Console submission and basic analytics.
+6. Start first Florida plumber outreach campaign.
 
 Keep the product narrow and trustworthy. Avoid generic CRM sprawl.
