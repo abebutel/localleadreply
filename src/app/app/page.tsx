@@ -62,7 +62,7 @@ export default function AppDemoPage() {
           </Link>
           <a
             className="inline-flex h-10 items-center gap-2 rounded-md bg-[#d94f30] px-4 text-sm font-semibold text-white transition hover:bg-[#bf4227]"
-            href="mailto:hello@localleadreply.com?subject=Demo%20setup"
+            href="/pilot"
           >
             Request setup
             <Send size={16} aria-hidden="true" />

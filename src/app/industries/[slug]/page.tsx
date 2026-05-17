@@ -64,7 +64,7 @@ export default async function IndustryPage({ params }: Props) {
           </Link>
           <Link
             className="inline-flex h-10 items-center gap-2 rounded-md bg-[#d94f30] px-4 text-sm font-semibold text-white transition hover:bg-[#bf4227]"
-            href={`mailto:${site.email}?subject=${encodeURIComponent(`${page.label} pilot`)}`}
+            href="/pilot"
           >
             Start pilot
             <ArrowRight size={16} aria-hidden="true" />
@@ -89,7 +89,7 @@ export default async function IndustryPage({ params }: Props) {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d94f30] px-5 font-semibold text-white transition hover:bg-[#bf4227]"
-              href={`mailto:${site.email}?subject=${encodeURIComponent(`${page.label} 14-day pilot`)}`}
+              href="/pilot"
             >
               Try a 14-day pilot
               <ArrowRight size={18} aria-hidden="true" />

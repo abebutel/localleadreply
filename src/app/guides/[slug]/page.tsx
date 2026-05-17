@@ -160,7 +160,7 @@ export default async function GuidePage({ params }: Props) {
           </p>
           <Link
             className="mt-5 inline-flex h-11 items-center gap-2 rounded-md bg-[#d94f30] px-4 font-semibold text-white transition hover:bg-[#bf4227]"
-            href={`mailto:${site.email}?subject=14-day%20pilot`}
+            href="/pilot"
           >
             Start a pilot
             <ArrowRight size={17} aria-hidden="true" />

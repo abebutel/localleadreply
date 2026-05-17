@@ -91,7 +91,7 @@ export default function Home() {
           </nav>
           <a
             className="inline-flex h-10 items-center gap-2 rounded-md bg-[#d94f30] px-4 text-sm font-semibold text-white transition hover:bg-[#bf4227]"
-            href="mailto:hello@localleadreply.com?subject=Pilot%20request"
+            href="/pilot"
           >
             Start pilot
             <ArrowRight size={16} aria-hidden="true" />
@@ -116,7 +116,7 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d94f30] px-5 font-semibold text-white transition hover:bg-[#bf4227]"
-              href="mailto:hello@localleadreply.com?subject=14-day%20pilot"
+              href="/pilot"
             >
               Try a 14-day pilot
               <ArrowRight size={18} aria-hidden="true" />
