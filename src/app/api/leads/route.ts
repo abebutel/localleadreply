@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createLead } from "@/lib/leads";
 import { getPilotBusiness } from "@/lib/pilot-businesses";
 
 type LeadRequest = {
@@ -85,6 +86,21 @@ export async function POST(request: Request) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.FROM_EMAIL;
   const toEmail = process.env.PILOT_TO_EMAIL;
+  const autoReplyPreview = business.autoReply;
+
+  const storedLead = await createLead({
+    business_slug: business.slug,
+    business_name: business.name,
+    customer_name: data.name,
+    phone: data.phone,
+    email: data.email || null,
+    service: data.service,
+    message: data.message || null,
+    consent_given: true,
+    status: "new",
+    auto_reply_preview: autoReplyPreview,
+    source: "capture_form",
+  });
 
   if (!resendApiKey || !fromEmail || !toEmail) {
     return NextResponse.json(
@@ -120,6 +136,8 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    autoReplyPreview: business.autoReply,
+    leadId: storedLead.ok ? storedLead.id : null,
+    storageWarning: storedLead.ok ? null : storedLead.reason,
+    autoReplyPreview,
   });
 }

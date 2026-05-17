@@ -10,6 +10,7 @@ import {
   Send,
   Settings,
 } from "lucide-react";
+import { listRecentLeads } from "@/lib/leads";
 
 export const metadata: Metadata = {
   title: "LocalLeadReply Demo Dashboard",
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
-const leads = [
+const sampleLeads = [
   {
     name: "Megan R.",
     need: "Kitchen sink leak",
@@ -52,7 +53,24 @@ const setupItems = [
   "Owner notification email",
 ];
 
-export default function AppDemoPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AppDemoPage() {
+  const storedLeads = await listRecentLeads(10);
+  const leads =
+    storedLeads.length > 0
+      ? storedLeads.map((lead) => ({
+          name: lead.customer_name,
+          need: lead.service,
+          source: lead.business_name,
+          status: lead.status === "new" ? "Needs call" : lead.status,
+          time: new Intl.DateTimeFormat("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+          }).format(new Date(lead.created_at)),
+        }))
+      : sampleLeads;
+
   return (
     <main className="min-h-screen bg-[#f4f1ea] text-[#151515]">
       <header className="border-b border-[#dedbd2] bg-white">
@@ -95,10 +113,14 @@ export default function AppDemoPage() {
                 <span className="grid size-10 place-items-center rounded-md bg-[#123c69] text-white">
                   <MessageSquareText size={20} aria-hidden="true" />
                 </span>
-                <div>
-                  <h2 className="text-xl font-semibold">Recent leads</h2>
-                  <p className="text-sm text-[#66685f]">Sorted by response urgency</p>
-                </div>
+              <div>
+                <h2 className="text-xl font-semibold">Recent leads</h2>
+                  <p className="text-sm text-[#66685f]">
+                    {storedLeads.length > 0
+                      ? "Showing live captured leads"
+                      : "Sample data until Supabase has captured leads"}
+                  </p>
+              </div>
               </div>
               <span className="rounded-md bg-[#e6f2ec] px-3 py-1 text-sm font-semibold text-[#1f7049]">
                 3 active
