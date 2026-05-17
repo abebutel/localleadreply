@@ -10,6 +10,28 @@ Expansion modules:
 - Review reply and reputation hub.
 - Weekly local content calendar.
 
+## Operating Preference
+
+The owner wants this business to run with as little day-to-day involvement from
+them as possible after launch, ideally with no manual involvement for the first
+month or two while early acquisition and product usage are tested.
+
+Build toward:
+- Automated lead capture and notifications.
+- Clear dashboards that show whether anything needs attention.
+- Low-touch onboarding for pilots.
+- Simple email alerts instead of manual checking.
+- Documentation that lets future agents continue without asking the owner for
+  repeated context.
+- Honest, permission-based messaging with no spammy shortcuts.
+
+Avoid:
+- Workflows that require the owner to manually process every pilot request.
+- Features that depend on frequent owner decisions before product-market signal
+  is visible.
+- Anything that risks deliverability, trust, or account reputation for short-term
+  outreach volume.
+
 ## Initial Geography
 
 Start with a focused region instead of the entire US.
