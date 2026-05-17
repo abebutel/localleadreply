@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: "/icon",
+    apple: "/apple-icon",
+  },
   openGraph: {
     title: "LocalLeadReply | Text back local leads faster",
     description:
