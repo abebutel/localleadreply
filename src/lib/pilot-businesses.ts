@@ -1,3 +1,6 @@
+import "server-only";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
+
 export type PilotBusiness = {
   slug: string;
   name: string;
@@ -5,9 +8,22 @@ export type PilotBusiness = {
   city: string;
   autoReply: string;
   services: string[];
+  ownerEmail: string | null;
+  isActive: boolean;
 };
 
-export const pilotBusinesses: PilotBusiness[] = [
+type BusinessRow = {
+  slug: string;
+  name: string;
+  trade: string;
+  city: string;
+  auto_reply: string;
+  services: string[];
+  owner_email: string | null;
+  is_active: boolean;
+};
+
+export const fallbackPilotBusinesses: PilotBusiness[] = [
   {
     slug: "northside-plumbing",
     name: "Northside Plumbing",
@@ -22,9 +38,61 @@ export const pilotBusinesses: PilotBusiness[] = [
       "Fixture repair",
       "General quote",
     ],
+    ownerEmail: null,
+    isActive: true,
   },
 ];
 
-export function getPilotBusiness(slug: string) {
-  return pilotBusinesses.find((business) => business.slug === slug);
+function fromRow(row: BusinessRow): PilotBusiness {
+  return {
+    slug: row.slug,
+    name: row.name,
+    trade: row.trade,
+    city: row.city,
+    autoReply: row.auto_reply,
+    services: row.services,
+    ownerEmail: row.owner_email,
+    isActive: row.is_active,
+  };
+}
+
+export async function listPilotBusinesses() {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return fallbackPilotBusinesses;
+  }
+
+  const { data, error } = await supabase
+    .from("businesses")
+    .select("slug,name,trade,city,auto_reply,services,owner_email,is_active")
+    .eq("is_active", true)
+    .order("created_at", { ascending: true });
+
+  if (error || !data?.length) {
+    return fallbackPilotBusinesses;
+  }
+
+  return data.map((row) => fromRow(row as BusinessRow));
+}
+
+export async function getPilotBusiness(slug: string) {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return fallbackPilotBusinesses.find((business) => business.slug === slug);
+  }
+
+  const { data, error } = await supabase
+    .from("businesses")
+    .select("slug,name,trade,city,auto_reply,services,owner_email,is_active")
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    return fallbackPilotBusinesses.find((business) => business.slug === slug);
+  }
+
+  return fromRow(data as BusinessRow);
 }

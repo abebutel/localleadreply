@@ -13,7 +13,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 The app only uses the service role key on the server. Do not expose it in client
 components.
 
-## Create The Leads Table
+## Create The Supabase Tables
 
 In Supabase:
 
@@ -22,9 +22,10 @@ In Supabase:
 3. Paste the contents of `supabase/schema.sql`.
 4. Run the query.
 
-If the table already exists from the first MVP setup, run the current file
-again. It safely adds `status_updated_at` and the status constraint used by the
-owner dashboard.
+If the tables already exist from an earlier MVP setup, run the current file
+again. It safely adds the `businesses` configuration table, the
+`status_updated_at` lead column, and the status constraint used by the owner
+dashboard.
 
 ## Verify
 
@@ -35,9 +36,25 @@ After deploy:
 3. Confirm it appears in Supabase `public.leads`.
 4. Confirm it appears on `https://www.localleadreply.com/app`.
 
+## Business Configuration
+
+Pilot capture forms are configured in `public.businesses`.
+
+- `slug`: used in `/capture/[slug]`
+- `name`
+- `trade`
+- `city`
+- `auto_reply`: the approved reply preview shown after form submit
+- `services`: the dropdown options on the capture form
+- `owner_email`: optional lead notification recipient for that business
+- `is_active`: hide or activate a capture form without code changes
+
+The schema seeds `northside-plumbing` so the current live sample URL keeps
+working. If `owner_email` is blank, lead alerts fall back to `PILOT_TO_EMAIL`.
+
 ## Current Data Model
 
-The first table is intentionally small:
+The first lead table is intentionally small:
 
 - `business_slug`
 - `business_name`

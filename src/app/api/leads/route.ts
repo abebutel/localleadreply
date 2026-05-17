@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   }
 
   const businessSlug = clean(body.businessSlug, 80);
-  const business = getPilotBusiness(businessSlug);
+  const business = await getPilotBusiness(businessSlug);
 
   if (!business) {
     return NextResponse.json({ error: "Unknown pilot business." }, { status: 404 });
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
 
   const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.FROM_EMAIL;
-  const toEmail = process.env.PILOT_TO_EMAIL;
+  const toEmail = business.ownerEmail || process.env.PILOT_TO_EMAIL;
   const autoReplyPreview = business.autoReply;
 
   const storedLead = await createLead({

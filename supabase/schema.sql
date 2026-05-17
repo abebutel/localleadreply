@@ -1,3 +1,61 @@
+create table if not exists public.businesses (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,
+  trade text not null,
+  city text not null,
+  auto_reply text not null,
+  services text[] not null default array[]::text[],
+  owner_email text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.businesses
+  add column if not exists owner_email text;
+
+alter table public.businesses
+  add column if not exists is_active boolean not null default true;
+
+alter table public.businesses
+  add column if not exists updated_at timestamptz not null default now();
+
+insert into public.businesses (
+  slug,
+  name,
+  trade,
+  city,
+  auto_reply,
+  services,
+  owner_email,
+  is_active
+)
+values (
+  'northside-plumbing',
+  'Northside Plumbing',
+  'Plumbing',
+  'Tampa, FL',
+  'Thanks for reaching out to Northside Plumbing. We received your request and can help. What time today is best for a quick call?',
+  array[
+    'Emergency leak',
+    'Drain clog',
+    'Water heater',
+    'Fixture repair',
+    'General quote'
+  ],
+  null,
+  true
+)
+on conflict (slug) do update set
+  name = excluded.name,
+  trade = excluded.trade,
+  city = excluded.city,
+  auto_reply = excluded.auto_reply,
+  services = excluded.services,
+  is_active = excluded.is_active,
+  updated_at = now();
+
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   business_slug text not null,
@@ -38,6 +96,18 @@ create index if not exists leads_business_slug_created_at_idx
 
 create index if not exists leads_status_created_at_idx
   on public.leads (status, created_at desc);
+
+create index if not exists businesses_slug_active_idx
+  on public.businesses (slug, is_active);
+
+alter table public.businesses enable row level security;
+
+drop policy if exists "Service role can manage businesses" on public.businesses;
+create policy "Service role can manage businesses"
+  on public.businesses
+  for all
+  using (auth.role() = 'service_role')
+  with check (auth.role() = 'service_role');
 
 alter table public.leads enable row level security;
 

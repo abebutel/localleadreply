@@ -90,6 +90,7 @@ Built and deployed:
 - Two guide articles.
 - Pilot request form and API.
 - Lead capture form for sample business.
+- Supabase-backed business configuration with hardcoded fallback.
 - Resend email notifications.
 - Supabase-backed lead storage.
 - Dashboard that shows real Supabase leads when present and sample data
@@ -108,13 +109,16 @@ Verified by the owner:
 ## Current Pilot Workflow
 
 1. Visitor submits `/capture/northside-plumbing`.
-2. App validates name, phone, service, and consent.
-3. App stores the lead in Supabase.
-4. App sends an email through Resend.
-5. Dashboard reads recent leads from Supabase.
-6. Owner can mark the lead contacted, booked, or lost from `/app` or the email
+2. App loads active business configuration from Supabase, with the original
+   Northside Plumbing config as fallback.
+3. App validates name, phone, service, and consent.
+4. App stores the lead in Supabase.
+5. App sends an email through Resend to the business `owner_email`, falling
+   back to `PILOT_TO_EMAIL`.
+6. Dashboard reads recent leads from Supabase.
+7. Owner can mark the lead contacted, booked, or lost from `/app` or the email
    action links.
-7. SMS is not enabled yet.
+8. SMS is not enabled yet.
 
 The current flow is email-first by design. Do not claim that text messages are
 being sent until Twilio, A2P 10DLC registration, opt-out handling, and message
@@ -164,8 +168,8 @@ Schema lives at:
 Setup doc:
 - `docs/SUPABASE_SETUP.md`
 
-The dashboard route `/app` is dynamic and reads recent leads through the
-server-side Supabase service role client.
+The capture route `/capture/[businessSlug]` and dashboard route `/app` are
+dynamic and read through the server-side Supabase service role client.
 
 ## Outreach Plan
 
@@ -200,13 +204,10 @@ instructions, and ask the owner only for dashboard actions that require login.
 ## Recommended Next Work
 
 Priority order:
-1. Set `ADMIN_PASSWORD` in Vercel before treating `/app` as private.
-2. Rerun `supabase/schema.sql` to add `status_updated_at` and the status
-   constraint, though status updates fall back gracefully if the column is not
-   present yet.
-3. Add business configuration in Supabase instead of hardcoded pilot business.
+1. Rerun `supabase/schema.sql` to add the `businesses` table and seed
+   `northside-plumbing`.
+2. Add Google Search Console submission and basic analytics.
+3. Start first Florida plumber outreach campaign.
 4. Add Twilio only after A2P 10DLC and opt-out handling are planned.
-5. Add Google Search Console submission and basic analytics.
-6. Start first Florida plumber outreach campaign.
 
 Keep the product narrow and trustworthy. Avoid generic CRM sprawl.

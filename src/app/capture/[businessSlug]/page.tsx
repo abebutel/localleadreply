@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock3, MessageSquareText, ShieldCheck } from "lucide-react";
 import { LeadCaptureForm } from "./LeadCaptureForm";
-import { getPilotBusiness, pilotBusinesses } from "@/lib/pilot-businesses";
+import { getPilotBusiness, listPilotBusinesses } from "@/lib/pilot-businesses";
 
 type Props = {
   params: Promise<{
@@ -10,13 +10,17 @@ type Props = {
   }>;
 };
 
-export function generateStaticParams() {
-  return pilotBusinesses.map((business) => ({ businessSlug: business.slug }));
+export const dynamic = "force-dynamic";
+
+export async function generateStaticParams() {
+  const businesses = await listPilotBusinesses();
+
+  return businesses.map((business) => ({ businessSlug: business.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { businessSlug } = await params;
-  const business = getPilotBusiness(businessSlug);
+  const business = await getPilotBusiness(businessSlug);
 
   if (!business) {
     return {};
@@ -34,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CapturePage({ params }: Props) {
   const { businessSlug } = await params;
-  const business = getPilotBusiness(businessSlug);
+  const business = await getPilotBusiness(businessSlug);
 
   if (!business) {
     notFound();
