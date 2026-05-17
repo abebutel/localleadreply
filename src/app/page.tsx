@@ -9,14 +9,12 @@ import {
   Star,
   Zap,
 } from "lucide-react";
+import { guidePages, industryPages } from "@/lib/site";
 
-const niches = [
-  { name: "plumbers", href: "/industries/plumbers" },
-  { name: "cleaning companies", href: "/#cleaning-companies" },
-  { name: "med spas", href: "/#med-spas" },
-  { name: "landscapers", href: "/#landscapers" },
-  { name: "roofers", href: "/#roofers" },
-];
+const niches = industryPages.map((page) => ({
+  name: page.label,
+  href: `/industries/${page.slug}`,
+}));
 
 const plans = [
   {
@@ -87,6 +85,7 @@ export default function Home() {
           <nav className="hidden items-center gap-7 text-sm text-[#4f514b] md:flex">
             <a href="#how">How it works</a>
             <a href="#niches">Industries</a>
+            <a href="#guides">Guides</a>
             <a href="/app">Demo</a>
             <a href="#pricing">Pricing</a>
           </nav>
@@ -270,6 +269,29 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="guides" className="mx-auto max-w-6xl px-5 py-14">
+        <div className="max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-normal text-[#d94f30]">
+            Guides
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">
+            Practical lead response advice for local operators.
+          </h2>
+        </div>
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          {guidePages.map((guide) => (
+            <a
+              className="rounded-lg border border-[#d7d1c4] bg-white p-5 transition hover:border-[#123c69]"
+              href={`/guides/${guide.slug}`}
+              key={guide.slug}
+            >
+              <h3 className="text-xl font-semibold">{guide.title}</h3>
+              <p className="mt-3 leading-7 text-[#565850]">{guide.description}</p>
+            </a>
+          ))}
         </div>
       </section>
 

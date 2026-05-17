@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { site } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://localleadreply.com"),
+  metadataBase: new URL(site.url),
   title: "LocalLeadReply | Text back local leads faster",
   description:
     "LocalLeadReply helps local service businesses text back new leads quickly, organize follow-ups, and recover more quote requests.",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     title: "LocalLeadReply | Text back local leads faster",
     description:
       "Instant lead text-back and simple follow-up tools for local service businesses.",
-    url: "https://localleadreply.com",
+    url: site.url,
     siteName: "LocalLeadReply",
     locale: "en_US",
     type: "website",

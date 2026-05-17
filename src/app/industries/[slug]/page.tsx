@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   ArrowRight,
   CheckCircle2,
@@ -8,30 +9,49 @@ import {
   PhoneCall,
   ShieldCheck,
 } from "lucide-react";
+import { industryPages, site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Missed Call Text-Back for Plumbers | LocalLeadReply",
-  description:
-    "LocalLeadReply helps plumbing businesses text back new leads quickly, organize follow-ups, and reduce missed quote requests.",
-  alternates: {
-    canonical: "/industries/plumbers",
-  },
+type Props = {
+  params: Promise<{
+    slug: string;
+  }>;
 };
 
-const templates = [
-  "Thanks for reaching out to {{business_name}}. We can help with {{service}}. What time today is best for a quick call?",
-  "Hi {{first_name}}, this is {{business_name}}. We saw your request about {{issue}}. Are you available now or later today?",
-  "Thanks for contacting {{business_name}} after hours. We received your request and will follow up first thing in the morning.",
-];
+export function generateStaticParams() {
+  return industryPages.map((page) => ({ slug: page.slug }));
+}
 
-const outcomes = [
-  "Respond to emergency plumbing inquiries faster",
-  "Keep after-hours quote requests from going cold",
-  "Track which leads still need a human follow-up",
-  "Use honest opt-in messaging instead of bulk spam",
-];
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const page = industryPages.find((item) => item.slug === slug);
 
-export default function PlumbersPage() {
+  if (!page) {
+    return {};
+  }
+
+  return {
+    title: `${page.title} | ${site.name}`,
+    description: page.description,
+    alternates: {
+      canonical: `/industries/${page.slug}`,
+    },
+  };
+}
+
+export default async function IndustryPage({ params }: Props) {
+  const { slug } = await params;
+  const page = industryPages.find((item) => item.slug === slug);
+
+  if (!page) {
+    notFound();
+  }
+
+  const templates = [
+    `Thanks for reaching out to {{business_name}}. We can help with {{service}}. What time today is best for a quick call?`,
+    `Hi {{first_name}}, this is {{business_name}}. We saw your request about {{issue}}. Are you available now or later today?`,
+    `Thanks for contacting {{business_name}} after hours. We received your request and will follow up first thing in the morning.`,
+  ];
+
   return (
     <main className="min-h-screen bg-[#fbfaf7] text-[#151515]">
       <header className="border-b border-[#dedbd2] bg-[#fbfaf7]">
@@ -40,11 +60,11 @@ export default function PlumbersPage() {
             <span className="grid size-9 place-items-center rounded-md bg-[#123c69] text-white">
               <MessageSquareText size={19} aria-hidden="true" />
             </span>
-            LocalLeadReply
+            {site.name}
           </Link>
           <Link
             className="inline-flex h-10 items-center gap-2 rounded-md bg-[#d94f30] px-4 text-sm font-semibold text-white transition hover:bg-[#bf4227]"
-            href="mailto:hello@localleadreply.com?subject=Plumber%20pilot"
+            href={`mailto:${site.email}?subject=${encodeURIComponent(`${page.label} pilot`)}`}
           >
             Start pilot
             <ArrowRight size={16} aria-hidden="true" />
@@ -56,20 +76,20 @@ export default function PlumbersPage() {
         <div>
           <p className="inline-flex items-center gap-2 rounded-md border border-[#cfcabf] bg-white px-3 py-2 text-sm font-semibold text-[#4f514b]">
             <PhoneCall size={16} aria-hidden="true" />
-            Built for plumbing lead response
+            {page.badge}
           </p>
           <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-[1.02] tracking-normal sm:text-6xl">
-            Text back plumbing leads before they call the next shop.
+            {page.headline}
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#565850]">
-            LocalLeadReply gives plumbers a simple, permission-based text-back
+            {site.name} gives {page.label} a simple, permission-based text-back
             flow for web forms, quote requests, and after-hours inquiries. It is
             built to help owners respond fast without adding a complicated CRM.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#d94f30] px-5 font-semibold text-white transition hover:bg-[#bf4227]"
-              href="mailto:hello@localleadreply.com?subject=Plumber%2014-day%20pilot"
+              href={`mailto:${site.email}?subject=${encodeURIComponent(`${page.label} 14-day pilot`)}`}
             >
               Try a 14-day pilot
               <ArrowRight size={18} aria-hidden="true" />
@@ -87,15 +107,15 @@ export default function PlumbersPage() {
           <div className="flex items-center gap-3 border-b border-[#ebe7df] pb-4">
             <Clock3 className="text-[#d94f30]" size={24} aria-hidden="true" />
             <div>
-              <p className="font-semibold">Sample plumbing text-back</p>
+              <p className="font-semibold">Sample text-back</p>
               <p className="text-sm text-[#66685f]">Sent after a quote form is submitted</p>
             </div>
           </div>
           <div className="mt-5 rounded-md bg-[#123c69] p-4 text-white">
             <p className="text-sm text-[#cfe3f4]">Auto reply</p>
             <p className="mt-2 leading-7">
-              Thanks for reaching out to Northside Plumbing. We can help with
-              water heater leaks. What time today is best for a quick call?
+              Thanks for reaching out to {page.business}. We can help with{" "}
+              {page.issue}. What time today is best for a quick call?
             </p>
           </div>
           <p className="mt-4 rounded-md bg-[#e6f2ec] px-3 py-2 text-sm font-semibold text-[#1f7049]">
@@ -109,7 +129,7 @@ export default function PlumbersPage() {
           <div>
             <h2 className="text-3xl font-semibold">What it helps with</h2>
             <ul className="mt-6 space-y-4">
-              {outcomes.map((outcome) => (
+              {page.outcomes.map((outcome) => (
                 <li className="flex gap-3" key={outcome}>
                   <CheckCircle2 className="text-[#1f7049]" size={21} aria-hidden="true" />
                   <span className="leading-7 text-[#565850]">{outcome}</span>
@@ -136,7 +156,7 @@ export default function PlumbersPage() {
           <h2 className="text-2xl font-semibold">Clean messaging rules</h2>
         </div>
         <p className="leading-7 text-[#565850]">
-          LocalLeadReply is designed for lead follow-up only. We use clear form
+          {site.name} is designed for lead follow-up only. We use clear form
           consent, identify the business in messages, and support opt-out
           handling before production SMS goes live.
         </p>
