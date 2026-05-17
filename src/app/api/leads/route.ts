@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordAnalyticsEvent } from "@/lib/analytics";
 import { createLead } from "@/lib/leads";
 import { makeLeadStatusActionUrl } from "@/lib/lead-actions";
 import { getPilotBusiness } from "@/lib/pilot-businesses";
@@ -167,6 +168,15 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
+
+  await recordAnalyticsEvent({
+    eventName: "lead_capture_submitted",
+    path: `/capture/${business.slug}`,
+    metadata: {
+      businessSlug: business.slug,
+      service: data.service,
+    },
+  });
 
   return NextResponse.json({
     ok: true,

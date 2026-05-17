@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
+  BarChart3,
   CheckCircle2,
   Clock3,
   MessageSquareText,
@@ -10,6 +11,7 @@ import {
   Send,
   Settings,
 } from "lucide-react";
+import { getAnalyticsSummary } from "@/lib/analytics";
 import { hasAdminPassword } from "@/lib/admin-auth";
 import { leadStatuses, listRecentLeads, type LeadStatus } from "@/lib/leads";
 import { updateLeadStatusAction } from "./actions";
@@ -99,7 +101,10 @@ type Props = {
 
 export default async function AppDemoPage({ searchParams }: Props) {
   const params = await searchParams;
-  const storedLeads = await listRecentLeads(10);
+  const [storedLeads, analytics] = await Promise.all([
+    listRecentLeads(10),
+    getAnalyticsSummary(7),
+  ]);
   const leads: DashboardLead[] =
     storedLeads.length > 0
       ? storedLeads.map((lead) => ({
@@ -267,6 +272,39 @@ export default async function AppDemoPage({ searchParams }: Props) {
           </section>
 
           <aside className="space-y-5">
+            <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
+              <div className="flex items-center gap-3">
+                <BarChart3 className="text-[#d94f30]" size={24} aria-hidden="true" />
+                <h2 className="text-xl font-semibold">Last 7 days</h2>
+              </div>
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                {[
+                  [String(analytics.pageViews), "page views"],
+                  [String(analytics.pilotRequests), "pilot requests"],
+                  [String(analytics.leadCaptures), "lead captures"],
+                ].map(([value, label]) => (
+                  <div className="rounded-md bg-[#f4f1ea] p-3" key={label}>
+                    <p className="text-2xl font-semibold">{value}</p>
+                    <p className="mt-1 text-sm text-[#66685f]">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 space-y-2">
+                {(analytics.topPages.length > 0
+                  ? analytics.topPages
+                  : [{ path: "No page views recorded yet", views: 0 }]
+                ).map((page) => (
+                  <div
+                    className="flex items-center justify-between gap-3 rounded-md border border-[#ebe7df] px-3 py-2 text-sm"
+                    key={page.path}
+                  >
+                    <span className="truncate text-[#565850]">{page.path}</span>
+                    <span className="font-semibold text-[#123c69]">{page.views}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
               <div className="flex items-center gap-3">
                 <Clock3 className="text-[#d94f30]" size={24} aria-hidden="true" />

@@ -96,6 +96,8 @@ Built and deployed:
 - Dashboard that shows real Supabase leads when present and sample data
   otherwise.
 - Dashboard lead status updates for `new`, `contacted`, `booked`, and `lost`.
+- Privacy-light first-party analytics in Supabase with a seven-day dashboard
+  summary.
 - Owner email notifications include signed direct action links when the lead is
   stored successfully.
 - Optional Basic Auth dashboard protection through `ADMIN_PASSWORD`.
@@ -171,6 +173,10 @@ Setup doc:
 The capture route `/capture/[businessSlug]` and dashboard route `/app` are
 dynamic and read through the server-side Supabase service role client.
 
+Analytics events live in `public.analytics_events`. Public page views are
+recorded client-side; pilot request and lead capture conversions are recorded
+server-side after the corresponding notification email succeeds.
+
 ## Outreach Plan
 
 Initial campaign should focus on Florida plumbers.
@@ -204,9 +210,8 @@ instructions, and ask the owner only for dashboard actions that require login.
 ## Recommended Next Work
 
 Priority order:
-1. Rerun `supabase/schema.sql` to add the `businesses` table and seed
-   `northside-plumbing`.
-2. Add Google Search Console submission and basic analytics.
+1. Rerun `supabase/schema.sql` to add the `analytics_events` table.
+2. Add Google Search Console submission.
 3. Start first Florida plumber outreach campaign.
 4. Add Twilio only after A2P 10DLC and opt-out handling are planned.
 

@@ -100,6 +100,37 @@ create index if not exists leads_status_created_at_idx
 create index if not exists businesses_slug_active_idx
   on public.businesses (slug, is_active);
 
+create table if not exists public.analytics_events (
+  id uuid primary key default gen_random_uuid(),
+  event_name text not null,
+  path text not null,
+  referrer text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  constraint analytics_events_name_check check (
+    event_name in (
+      'page_view',
+      'pilot_request_submitted',
+      'lead_capture_submitted'
+    )
+  )
+);
+
+create index if not exists analytics_events_created_at_idx
+  on public.analytics_events (created_at desc);
+
+create index if not exists analytics_events_name_created_at_idx
+  on public.analytics_events (event_name, created_at desc);
+
+alter table public.analytics_events enable row level security;
+
+drop policy if exists "Service role can manage analytics events" on public.analytics_events;
+create policy "Service role can manage analytics events"
+  on public.analytics_events
+  for all
+  using (auth.role() = 'service_role')
+  with check (auth.role() = 'service_role');
+
 alter table public.businesses enable row level security;
 
 drop policy if exists "Service role can manage businesses" on public.businesses;

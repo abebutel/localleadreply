@@ -24,8 +24,8 @@ In Supabase:
 
 If the tables already exist from an earlier MVP setup, run the current file
 again. It safely adds the `businesses` configuration table, the
-`status_updated_at` lead column, and the status constraint used by the owner
-dashboard.
+`analytics_events` table, the `status_updated_at` lead column, and the status
+constraint used by the owner dashboard.
 
 ## Verify
 
@@ -69,5 +69,17 @@ The first lead table is intentionally small:
 - `auto_reply_preview`
 - `source`
 - `created_at`
+
+## Analytics Events
+
+The app records privacy-light first-party events in `public.analytics_events`.
+
+- `page_view`: public site pages only; `/app` and `/api` are ignored
+- `pilot_request_submitted`: recorded after a pilot request email is sent
+- `lead_capture_submitted`: recorded after a lead notification email is sent
+
+The owner dashboard summarizes the last seven days from this table. It stores
+paths, referrers, event names, and small metadata fields, but no IP addresses or
+cookies.
 
 SMS events, team users, and business accounts should be separate tables later.

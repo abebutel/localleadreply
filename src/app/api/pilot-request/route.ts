@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recordAnalyticsEvent } from "@/lib/analytics";
 
 type PilotRequest = {
   name?: string;
@@ -94,6 +95,14 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
+
+  await recordAnalyticsEvent({
+    eventName: "pilot_request_submitted",
+    path: "/pilot",
+    metadata: {
+      businessType: data.businessType,
+    },
+  });
 
   return NextResponse.json({ ok: true });
 }
