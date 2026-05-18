@@ -193,6 +193,12 @@ Daily summary:
   open pilot requests, outreach counts, follow-ups due, and seven-day
   analytics.
 
+Readiness check:
+- Route: `/api/readiness`
+- Requires dashboard Basic Auth or `Authorization: Bearer ${CRON_SECRET}`
+- Checks required env vars and Supabase table reachability without exposing
+  secret values.
+
 ## Outreach Plan
 
 Initial campaign should focus on Florida plumbers.
@@ -226,7 +232,7 @@ instructions, and ask the owner only for dashboard actions that require login.
 ## Recommended Next Work
 
 Priority order:
-1. Rerun `supabase/schema.sql` to add `outreach_prospects`.
+1. Verify `/api/readiness` on production with dashboard auth or cron bearer.
 2. Add 20-50 Florida plumber prospects to `public.outreach_prospects`.
 3. Verify one live pilot request and one live capture request end to end.
 4. Start first Florida plumber outreach campaign.
