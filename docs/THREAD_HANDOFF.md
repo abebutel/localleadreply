@@ -218,6 +218,7 @@ Approach:
 See:
 - `docs/OUTREACH_PLAYBOOK.md`
 - `docs/OUTREACH_IMPORT.md`
+- `docs/OUTREACH_BATCH_001_SOURCES.md`
 
 Controlled outreach means small-batch validation, not a broad paid launch:
 - 20-50 hand-picked Florida plumbers.
@@ -254,8 +255,8 @@ instructions, and ask the owner only for dashboard actions that require login.
 
 Priority order:
 1. Verify `/api/readiness` on production with dashboard auth or cron bearer.
-2. Add 20-50 Florida plumber prospects through `/api/outreach-prospects` or
-   directly in Supabase.
+2. Import `data/outreach-prospects-florida-plumbers-batch-001.json` through
+   `/api/outreach-prospects` or directly in Supabase.
 3. Verify one live pilot request and one live capture request end to end.
 4. Start first Florida plumber outreach campaign.
 5. Add Twilio only after `docs/TWILIO_SMS_READINESS.md` is satisfied.
