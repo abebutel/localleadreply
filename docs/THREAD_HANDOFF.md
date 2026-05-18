@@ -211,6 +211,13 @@ Approach:
 
 See:
 - `docs/OUTREACH_PLAYBOOK.md`
+- `docs/OUTREACH_IMPORT.md`
+
+Protected outreach import:
+- Route: `/api/outreach-prospects`
+- Method: `POST`
+- Accepts one prospect or an array of prospects.
+- Requires dashboard Basic Auth or `Authorization: Bearer ${CRON_SECRET}`.
 
 ## Browser/Chrome Tool Issue
 
@@ -233,7 +240,8 @@ instructions, and ask the owner only for dashboard actions that require login.
 
 Priority order:
 1. Verify `/api/readiness` on production with dashboard auth or cron bearer.
-2. Add 20-50 Florida plumber prospects to `public.outreach_prospects`.
+2. Add 20-50 Florida plumber prospects through `/api/outreach-prospects` or
+   directly in Supabase.
 3. Verify one live pilot request and one live capture request end to end.
 4. Start first Florida plumber outreach campaign.
 5. Add Twilio only after A2P 10DLC and opt-out handling are planned.

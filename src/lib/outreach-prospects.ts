@@ -36,6 +36,64 @@ export type OutreachSummary = {
   followUpsDue: number;
 };
 
+export type NewOutreachProspect = {
+  business_name: string;
+  city: string;
+  niche?: string;
+  website?: string | null;
+  contact_name?: string | null;
+  contact_email?: string | null;
+  phone?: string | null;
+  lead_source?: string | null;
+  notes?: string | null;
+  status?: OutreachProspectStatus;
+  last_contacted_at?: string | null;
+  next_follow_up_at?: string | null;
+};
+
+export function isOutreachProspectStatus(
+  value: unknown,
+): value is OutreachProspectStatus {
+  return (
+    typeof value === "string" &&
+    outreachProspectStatuses.includes(value as OutreachProspectStatus)
+  );
+}
+
+export async function createOutreachProspects(prospects: NewOutreachProspect[]) {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return { ok: false, reason: "Supabase is not configured." };
+  }
+
+  const { data, error } = await supabase
+    .from("outreach_prospects")
+    .insert(
+      prospects.map((prospect) => ({
+        business_name: prospect.business_name,
+        city: prospect.city,
+        niche: prospect.niche || "plumbing",
+        website: prospect.website || null,
+        contact_name: prospect.contact_name || null,
+        contact_email: prospect.contact_email || null,
+        phone: prospect.phone || null,
+        lead_source: prospect.lead_source || null,
+        notes: prospect.notes || null,
+        status: prospect.status || "identified",
+        last_contacted_at: prospect.last_contacted_at || null,
+        next_follow_up_at: prospect.next_follow_up_at || null,
+      })),
+    )
+    .select("id");
+
+  if (error) {
+    return { ok: false, reason: error.message };
+  }
+
+  return { ok: true, inserted: data.length };
+}
+
 export async function listRecentOutreachProspects(limit = 5) {
   const supabase = getSupabaseAdmin();
 
