@@ -135,6 +135,9 @@ event storage are implemented.
 SMS readiness plan:
 - `docs/TWILIO_SMS_READINESS.md`
 
+Business/payment readiness:
+- `docs/BUSINESS_PAYMENT_READINESS.md`
+
 ## Accounts And Services
 
 Already connected/configured by owner:
@@ -256,5 +259,7 @@ Priority order:
 3. Verify one live pilot request and one live capture request end to end.
 4. Start first Florida plumber outreach campaign.
 5. Add Twilio only after `docs/TWILIO_SMS_READINESS.md` is satisfied.
+6. Enable paid subscriptions only after
+   `docs/BUSINESS_PAYMENT_READINESS.md` is satisfied.
 
 Keep the product narrow and trustworthy. Avoid generic CRM sprawl.

@@ -132,6 +132,14 @@ finished.
 - Google Search Console.
 - Analytics provider, such as Plausible or Google Analytics.
 
+## Business And Payment Readiness
+
+Discovery outreach and unpaid pilots can run before a full paid launch. Paid
+subscriptions should wait until business structure, payment, terms, privacy, and
+support expectations are ready.
+
+See `docs/BUSINESS_PAYMENT_READINESS.md`.
+
 ## Current Pilot Workflow
 
 The first usable pilot workflow is intentionally email-first:
