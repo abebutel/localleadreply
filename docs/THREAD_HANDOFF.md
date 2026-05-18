@@ -102,6 +102,8 @@ Built and deployed:
 - Daily owner digest endpoint scheduled through Vercel Cron.
 - Owner email notifications include signed direct action links when the lead is
   stored successfully.
+- Pilot request emails include signed direct action links when the request is
+  stored successfully.
 - Optional Basic Auth dashboard protection through `ADMIN_PASSWORD`.
 - Branded favicon/icon routes.
 - Sitemap and robots routes.

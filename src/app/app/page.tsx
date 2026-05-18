@@ -111,6 +111,7 @@ export const dynamic = "force-dynamic";
 
 type Props = {
   searchParams?: Promise<{
+    pilotUpdated?: string;
     updated?: string;
   }>;
 };
@@ -195,6 +196,12 @@ export default async function AppDemoPage({ searchParams }: Props) {
         {params?.updated ? (
           <div className="mb-5 rounded-md border border-[#b9dec9] bg-[#e6f2ec] px-4 py-3 text-sm font-semibold text-[#1f7049]">
             Lead marked {params.updated}.
+          </div>
+        ) : null}
+
+        {params?.pilotUpdated ? (
+          <div className="mb-5 rounded-md border border-[#b9dec9] bg-[#e6f2ec] px-4 py-3 text-sm font-semibold text-[#1f7049]">
+            Pilot request marked {params.pilotUpdated}.
           </div>
         ) : null}
 

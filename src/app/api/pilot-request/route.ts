@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { recordAnalyticsEvent } from "@/lib/analytics";
+import { makePilotRequestStatusActionUrl } from "@/lib/lead-actions";
 import { createPilotRequest } from "@/lib/pilot-requests";
 
 type PilotRequest = {
@@ -18,7 +19,19 @@ function clean(value: unknown) {
   return typeof value === "string" ? value.trim().slice(0, 500) : "";
 }
 
-function makeEmailBody(data: Required<PilotRequest>) {
+function makeEmailBody({
+  data,
+  dashboardUrl,
+  actionUrls,
+}: {
+  data: Required<PilotRequest>;
+  dashboardUrl: string | null;
+  actionUrls: {
+    contacted: string | null;
+    qualified: string | null;
+    closed: string | null;
+  };
+}) {
   return `
 New LocalLeadReply pilot request
 
@@ -31,6 +44,14 @@ Phone: ${data.phone || "Not provided"}
 
 Message:
 ${data.message || "Not provided"}
+
+Next actions:
+${actionUrls.contacted ? `Mark contacted: ${actionUrls.contacted}` : "Mark contacted: open the dashboard"}
+${actionUrls.qualified ? `Mark qualified: ${actionUrls.qualified}` : "Mark qualified: open the dashboard"}
+${actionUrls.closed ? `Mark closed: ${actionUrls.closed}` : "Mark closed: open the dashboard"}
+
+Dashboard:
+${dashboardUrl || "Set NEXT_PUBLIC_APP_URL to include dashboard links."}
   `.trim();
 }
 
@@ -70,6 +91,21 @@ export async function POST(request: Request) {
     phone: data.phone || null,
     message: data.message || null,
   });
+  const requestId = storedRequest.ok ? storedRequest.id : null;
+  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL
+    ? new URL("/app", process.env.NEXT_PUBLIC_APP_URL).toString()
+    : null;
+  const actionUrls = {
+    contacted: requestId
+      ? makePilotRequestStatusActionUrl({ requestId, status: "contacted" })
+      : null,
+    qualified: requestId
+      ? makePilotRequestStatusActionUrl({ requestId, status: "qualified" })
+      : null,
+    closed: requestId
+      ? makePilotRequestStatusActionUrl({ requestId, status: "closed" })
+      : null,
+  };
 
   if (!resendApiKey || !fromEmail || !toEmail) {
     return NextResponse.json(
@@ -92,7 +128,7 @@ export async function POST(request: Request) {
       to: [toEmail],
       reply_to: data.email,
       subject: `Pilot request from ${data.businessName}`,
-      text: makeEmailBody(data),
+      text: makeEmailBody({ data, dashboardUrl, actionUrls }),
     }),
   });
 
