@@ -87,6 +87,8 @@ Social media accounts should be accessed through browser sessions or official co
 - Do not send bulk promotional blasts.
 - Complete Twilio A2P 10DLC registration before US production messaging.
 
+See `docs/TWILIO_SMS_READINESS.md` before implementing or enabling SMS.
+
 ## Early Acquisition System
 
 1. Launch one flagship landing page.

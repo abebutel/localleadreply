@@ -132,6 +132,9 @@ The current flow is email-first by design. Do not claim that text messages are
 being sent until Twilio, A2P 10DLC registration, opt-out handling, and message
 event storage are implemented.
 
+SMS readiness plan:
+- `docs/TWILIO_SMS_READINESS.md`
+
 ## Accounts And Services
 
 Already connected/configured by owner:
@@ -252,6 +255,6 @@ Priority order:
    directly in Supabase.
 3. Verify one live pilot request and one live capture request end to end.
 4. Start first Florida plumber outreach campaign.
-5. Add Twilio only after A2P 10DLC and opt-out handling are planned.
+5. Add Twilio only after `docs/TWILIO_SMS_READINESS.md` is satisfied.
 
 Keep the product narrow and trustworthy. Avoid generic CRM sprawl.
