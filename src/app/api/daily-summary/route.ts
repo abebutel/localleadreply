@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAnalyticsSummary } from "@/lib/analytics";
 import { getLeadDigestSummary } from "@/lib/leads";
+import { countOpenPilotRequests } from "@/lib/pilot-requests";
 
 function requireCronSecret(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -15,9 +16,11 @@ function requireCronSecret(request: NextRequest) {
 function makeDigestEmail({
   analytics,
   leads,
+  openPilotRequests,
 }: {
   analytics: Awaited<ReturnType<typeof getAnalyticsSummary>>;
   leads: Awaited<ReturnType<typeof getLeadDigestSummary>>;
+  openPilotRequests: number;
 }) {
   const recentLeadLines =
     leads.recentLeads.length > 0
@@ -43,6 +46,7 @@ Lead pipeline:
 - New leads in the last 24 hours: ${leads.newToday}
 - Open leads needing attention: ${leads.openLeads}
 - Leads marked booked in the last 24 hours: ${leads.bookedToday}
+- Open pilot requests: ${openPilotRequests}
 
 Last 7 days:
 - Page views: ${analytics.pageViews}
@@ -76,9 +80,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const [analytics, leads] = await Promise.all([
+  const [analytics, leads, openPilotRequests] = await Promise.all([
     getAnalyticsSummary(7),
     getLeadDigestSummary(),
+    countOpenPilotRequests(),
   ]);
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -91,7 +96,7 @@ export async function GET(request: NextRequest) {
       from: fromEmail,
       to: [toEmail],
       subject: `LocalLeadReply daily summary: ${leads.openLeads} open leads`,
-      text: makeDigestEmail({ analytics, leads }),
+      text: makeDigestEmail({ analytics, leads, openPilotRequests }),
     }),
   });
 
@@ -105,6 +110,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     openLeads: leads.openLeads,
+    openPilotRequests,
     newToday: leads.newToday,
     pageViews: analytics.pageViews,
   });

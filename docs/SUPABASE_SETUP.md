@@ -28,8 +28,8 @@ In Supabase:
 
 If the tables already exist from an earlier MVP setup, run the current file
 again. It safely adds the `businesses` configuration table, the
-`analytics_events` table, the `status_updated_at` lead column, and the status
-constraint used by the owner dashboard.
+`pilot_requests` table, the `analytics_events` table, the `status_updated_at`
+lead column, and the status constraints used by the owner dashboard.
 
 ## Verify
 
@@ -85,5 +85,16 @@ The app records privacy-light first-party events in `public.analytics_events`.
 The owner dashboard summarizes the last seven days from this table. It stores
 paths, referrers, event names, and small metadata fields, but no IP addresses or
 cookies.
+
+## Pilot Requests
+
+Pilot setup requests are stored in `public.pilot_requests` before the Resend
+email is sent. This keeps inbound sales interest visible in the owner dashboard
+even if email delivery has a temporary issue.
+
+- `new`: inbound request waiting for owner review
+- `contacted`: owner replied or reached out
+- `qualified`: business looks like a good pilot candidate
+- `closed`: no longer active
 
 SMS events, team users, and business accounts should be separate tables later.

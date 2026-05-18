@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { recordAnalyticsEvent } from "@/lib/analytics";
+import { createPilotRequest } from "@/lib/pilot-requests";
 
 type PilotRequest = {
   name?: string;
@@ -60,6 +61,15 @@ export async function POST(request: Request) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.FROM_EMAIL;
   const toEmail = process.env.PILOT_TO_EMAIL;
+  const storedRequest = await createPilotRequest({
+    name: data.name,
+    email: data.email,
+    business_name: data.businessName,
+    business_type: data.businessType,
+    website: data.website || null,
+    phone: data.phone || null,
+    message: data.message || null,
+  });
 
   if (!resendApiKey || !fromEmail || !toEmail) {
     return NextResponse.json(
@@ -104,5 +114,9 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+    pilotRequestId: storedRequest.ok ? storedRequest.id : null,
+    storageWarning: storedRequest.ok ? null : storedRequest.reason,
+  });
 }

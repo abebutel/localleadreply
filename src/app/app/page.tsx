@@ -10,10 +10,12 @@ import {
   Phone,
   Send,
   Settings,
+  UserRoundPlus,
 } from "lucide-react";
 import { getAnalyticsSummary } from "@/lib/analytics";
 import { hasAdminPassword } from "@/lib/admin-auth";
 import { leadStatuses, listRecentLeads, type LeadStatus } from "@/lib/leads";
+import { listRecentPilotRequests } from "@/lib/pilot-requests";
 import { updateLeadStatusAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -101,9 +103,10 @@ type Props = {
 
 export default async function AppDemoPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [storedLeads, analytics] = await Promise.all([
+  const [storedLeads, analytics, pilotRequests] = await Promise.all([
     listRecentLeads(10),
     getAnalyticsSummary(7),
+    listRecentPilotRequests(5),
   ]);
   const leads: DashboardLead[] =
     storedLeads.length > 0
@@ -272,6 +275,62 @@ export default async function AppDemoPage({ searchParams }: Props) {
           </section>
 
           <aside className="space-y-5">
+            <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
+              <div className="flex items-center gap-3">
+                <UserRoundPlus className="text-[#d94f30]" size={24} aria-hidden="true" />
+                <h2 className="text-xl font-semibold">Pilot requests</h2>
+              </div>
+              <div className="mt-5 space-y-3">
+                {(pilotRequests.length > 0
+                  ? pilotRequests
+                  : [
+                      {
+                        id: "empty",
+                        name: "No pilot requests yet",
+                        email: "",
+                        business_name: "Outreach has not started",
+                        business_type: "",
+                        website: null,
+                        phone: null,
+                        message: null,
+                        status: "",
+                        created_at: "",
+                      },
+                    ]
+                ).map((request) => (
+                  <article
+                    className="rounded-md border border-[#ebe7df] bg-[#fbfaf7] p-3"
+                    key={request.id}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-semibold">{request.business_name}</h3>
+                      {request.status ? (
+                        <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-[#565850]">
+                          {request.status}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-sm text-[#565850]">
+                      {request.name}
+                      {request.business_type ? ` | ${request.business_type}` : ""}
+                    </p>
+                    {request.email ? (
+                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                        <a className="font-semibold text-[#123c69]" href={`mailto:${request.email}`}>
+                          {request.email}
+                        </a>
+                        {request.phone ? (
+                          <a className="font-semibold text-[#123c69]" href={`tel:${request.phone}`}>
+                            {request.phone}
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+
             <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
               <div className="flex items-center gap-3">
                 <BarChart3 className="text-[#d94f30]" size={24} aria-hidden="true" />

@@ -89,6 +89,7 @@ Built and deployed:
 - Five niche landing pages.
 - Two guide articles.
 - Pilot request form and API.
+- Supabase-backed pilot request storage.
 - Lead capture form for sample business.
 - Supabase-backed business configuration with hardcoded fallback.
 - Resend email notifications.
@@ -184,8 +185,8 @@ Daily summary:
 - Schedule: `0 13 * * *` in `vercel.json`
 - Sends to `PILOT_TO_EMAIL`
 - Requires `Authorization: Bearer ${CRON_SECRET}`
-- Includes new leads from the last 24 hours, open lead count, booked count, and
-  seven-day analytics.
+- Includes new leads from the last 24 hours, open lead count, booked count,
+  open pilot requests, and seven-day analytics.
 
 ## Outreach Plan
 
@@ -220,9 +221,10 @@ instructions, and ask the owner only for dashboard actions that require login.
 ## Recommended Next Work
 
 Priority order:
-1. Set `CRON_SECRET` in Vercel so the daily summary cron can run.
-2. Add Google Search Console submission.
-3. Start first Florida plumber outreach campaign.
-4. Add Twilio only after A2P 10DLC and opt-out handling are planned.
+1. Rerun `supabase/schema.sql` to add `pilot_requests`.
+2. Verify one live pilot request and one live capture request end to end.
+3. Add Google Search Console submission.
+4. Start first Florida plumber outreach campaign.
+5. Add Twilio only after A2P 10DLC and opt-out handling are planned.
 
 Keep the product narrow and trustworthy. Avoid generic CRM sprawl.

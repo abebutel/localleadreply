@@ -74,6 +74,40 @@ create table if not exists public.leads (
   constraint leads_status_check check (status in ('new', 'contacted', 'booked', 'lost'))
 );
 
+create table if not exists public.pilot_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  business_name text not null,
+  business_type text not null,
+  website text,
+  phone text,
+  message text,
+  status text not null default 'new',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint pilot_requests_status_check check (
+    status in ('new', 'contacted', 'qualified', 'closed')
+  )
+);
+
+alter table public.pilot_requests
+  add column if not exists updated_at timestamptz not null default now();
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'pilot_requests_status_check'
+  ) then
+    alter table public.pilot_requests
+      add constraint pilot_requests_status_check
+      check (status in ('new', 'contacted', 'qualified', 'closed'));
+  end if;
+end
+$$;
+
 alter table public.leads
   add column if not exists status_updated_at timestamptz;
 
@@ -96,6 +130,9 @@ create index if not exists leads_business_slug_created_at_idx
 
 create index if not exists leads_status_created_at_idx
   on public.leads (status, created_at desc);
+
+create index if not exists pilot_requests_status_created_at_idx
+  on public.pilot_requests (status, created_at desc);
 
 create index if not exists businesses_slug_active_idx
   on public.businesses (slug, is_active);
@@ -136,6 +173,15 @@ alter table public.businesses enable row level security;
 drop policy if exists "Service role can manage businesses" on public.businesses;
 create policy "Service role can manage businesses"
   on public.businesses
+  for all
+  using (auth.role() = 'service_role')
+  with check (auth.role() = 'service_role');
+
+alter table public.pilot_requests enable row level security;
+
+drop policy if exists "Service role can manage pilot requests" on public.pilot_requests;
+create policy "Service role can manage pilot requests"
+  on public.pilot_requests
   for all
   using (auth.role() = 'service_role')
   with check (auth.role() = 'service_role');
