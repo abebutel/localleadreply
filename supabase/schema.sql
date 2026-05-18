@@ -91,6 +91,47 @@ create table if not exists public.pilot_requests (
   )
 );
 
+create table if not exists public.outreach_prospects (
+  id uuid primary key default gen_random_uuid(),
+  business_name text not null,
+  city text not null,
+  niche text not null default 'plumbing',
+  website text,
+  contact_name text,
+  contact_email text,
+  phone text,
+  lead_source text,
+  notes text,
+  status text not null default 'identified',
+  last_contacted_at timestamptz,
+  next_follow_up_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint outreach_prospects_status_check check (
+    status in ('identified', 'contacted', 'replied', 'pilot_invited', 'not_fit')
+  )
+);
+
+alter table public.outreach_prospects
+  add column if not exists next_follow_up_at timestamptz;
+
+alter table public.outreach_prospects
+  add column if not exists updated_at timestamptz not null default now();
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'outreach_prospects_status_check'
+  ) then
+    alter table public.outreach_prospects
+      add constraint outreach_prospects_status_check
+      check (status in ('identified', 'contacted', 'replied', 'pilot_invited', 'not_fit'));
+  end if;
+end
+$$;
+
 alter table public.pilot_requests
   add column if not exists updated_at timestamptz not null default now();
 
@@ -133,6 +174,13 @@ create index if not exists leads_status_created_at_idx
 
 create index if not exists pilot_requests_status_created_at_idx
   on public.pilot_requests (status, created_at desc);
+
+create index if not exists outreach_prospects_status_created_at_idx
+  on public.outreach_prospects (status, created_at desc);
+
+create index if not exists outreach_prospects_follow_up_idx
+  on public.outreach_prospects (next_follow_up_at)
+  where next_follow_up_at is not null;
 
 create index if not exists businesses_slug_active_idx
   on public.businesses (slug, is_active);
@@ -182,6 +230,15 @@ alter table public.pilot_requests enable row level security;
 drop policy if exists "Service role can manage pilot requests" on public.pilot_requests;
 create policy "Service role can manage pilot requests"
   on public.pilot_requests
+  for all
+  using (auth.role() = 'service_role')
+  with check (auth.role() = 'service_role');
+
+alter table public.outreach_prospects enable row level security;
+
+drop policy if exists "Service role can manage outreach prospects" on public.outreach_prospects;
+create policy "Service role can manage outreach prospects"
+  on public.outreach_prospects
   for all
   using (auth.role() = 'service_role')
   with check (auth.role() = 'service_role');

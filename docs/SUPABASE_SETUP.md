@@ -28,8 +28,9 @@ In Supabase:
 
 If the tables already exist from an earlier MVP setup, run the current file
 again. It safely adds the `businesses` configuration table, the
-`pilot_requests` table, the `analytics_events` table, the `status_updated_at`
-lead column, and the status constraints used by the owner dashboard.
+`pilot_requests` table, the `outreach_prospects` table, the `analytics_events`
+table, the `status_updated_at` lead column, and the status constraints used by
+the owner dashboard.
 
 ## Verify
 
@@ -96,5 +97,22 @@ even if email delivery has a temporary issue.
 - `contacted`: owner replied or reached out
 - `qualified`: business looks like a good pilot candidate
 - `closed`: no longer active
+
+## Outreach Prospects
+
+The first Florida plumber campaign can be tracked in `public.outreach_prospects`.
+Add prospects here before sending outreach so the daily summary and dashboard
+can show progress.
+
+- `identified`: added to the campaign list
+- `contacted`: first outreach sent
+- `replied`: business replied
+- `pilot_invited`: invited to the pilot or sent setup link
+- `not_fit`: removed from active outreach
+
+Useful fields:
+- `city`: start with Tampa, Orlando, Jacksonville, or Miami
+- `lead_source`: e.g. "website form", "Google Ads", "recent reviews"
+- `next_follow_up_at`: when a follow-up is due
 
 SMS events, team users, and business accounts should be separate tables later.

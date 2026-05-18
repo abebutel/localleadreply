@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAnalyticsSummary } from "@/lib/analytics";
 import { getLeadDigestSummary } from "@/lib/leads";
+import { getOutreachSummary } from "@/lib/outreach-prospects";
 import { countOpenPilotRequests } from "@/lib/pilot-requests";
 
 function requireCronSecret(request: NextRequest) {
@@ -17,10 +18,12 @@ function makeDigestEmail({
   analytics,
   leads,
   openPilotRequests,
+  outreach,
 }: {
   analytics: Awaited<ReturnType<typeof getAnalyticsSummary>>;
   leads: Awaited<ReturnType<typeof getLeadDigestSummary>>;
   openPilotRequests: number;
+  outreach: Awaited<ReturnType<typeof getOutreachSummary>>;
 }) {
   const recentLeadLines =
     leads.recentLeads.length > 0
@@ -47,6 +50,13 @@ Lead pipeline:
 - Open leads needing attention: ${leads.openLeads}
 - Leads marked booked in the last 24 hours: ${leads.bookedToday}
 - Open pilot requests: ${openPilotRequests}
+
+Outreach:
+- Identified prospects: ${outreach.identified}
+- Contacted prospects: ${outreach.contacted}
+- Replies: ${outreach.replied}
+- Pilot invites: ${outreach.pilotInvited}
+- Follow-ups due: ${outreach.followUpsDue}
 
 Last 7 days:
 - Page views: ${analytics.pageViews}
@@ -80,10 +90,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const [analytics, leads, openPilotRequests] = await Promise.all([
+  const [analytics, leads, openPilotRequests, outreach] = await Promise.all([
     getAnalyticsSummary(7),
     getLeadDigestSummary(),
     countOpenPilotRequests(),
+    getOutreachSummary(),
   ]);
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -96,7 +107,7 @@ export async function GET(request: NextRequest) {
       from: fromEmail,
       to: [toEmail],
       subject: `LocalLeadReply daily summary: ${leads.openLeads} open leads`,
-      text: makeDigestEmail({ analytics, leads, openPilotRequests }),
+      text: makeDigestEmail({ analytics, leads, openPilotRequests, outreach }),
     }),
   });
 
@@ -111,6 +122,7 @@ export async function GET(request: NextRequest) {
     ok: true,
     openLeads: leads.openLeads,
     openPilotRequests,
+    outreach,
     newToday: leads.newToday,
     pageViews: analytics.pageViews,
   });

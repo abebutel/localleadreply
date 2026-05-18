@@ -10,11 +10,16 @@ import {
   Phone,
   Send,
   Settings,
+  Target,
   UserRoundPlus,
 } from "lucide-react";
 import { getAnalyticsSummary } from "@/lib/analytics";
 import { hasAdminPassword } from "@/lib/admin-auth";
 import { leadStatuses, listRecentLeads, type LeadStatus } from "@/lib/leads";
+import {
+  getOutreachSummary,
+  listRecentOutreachProspects,
+} from "@/lib/outreach-prospects";
 import {
   listRecentPilotRequests,
   pilotRequestStatuses,
@@ -118,10 +123,13 @@ type Props = {
 
 export default async function AppDemoPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [storedLeads, analytics, pilotRequests] = await Promise.all([
+  const [storedLeads, analytics, pilotRequests, outreachProspects, outreach] =
+    await Promise.all([
     listRecentLeads(10),
     getAnalyticsSummary(7),
     listRecentPilotRequests(5),
+    listRecentOutreachProspects(5),
+    getOutreachSummary(),
   ]);
   const leads: DashboardLead[] =
     storedLeads.length > 0
@@ -296,6 +304,81 @@ export default async function AppDemoPage({ searchParams }: Props) {
           </section>
 
           <aside className="space-y-5">
+            <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
+              <div className="flex items-center gap-3">
+                <Target className="text-[#d94f30]" size={24} aria-hidden="true" />
+                <h2 className="text-xl font-semibold">Outreach</h2>
+              </div>
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                {[
+                  [String(outreach.identified), "identified"],
+                  [String(outreach.contacted), "contacted"],
+                  [String(outreach.followUpsDue), "follow-ups due"],
+                ].map(([value, label]) => (
+                  <div className="rounded-md bg-[#f4f1ea] p-3" key={label}>
+                    <p className="text-2xl font-semibold">{value}</p>
+                    <p className="mt-1 text-sm text-[#66685f]">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 space-y-3">
+                {(outreachProspects.length > 0
+                  ? outreachProspects
+                  : [
+                      {
+                        id: "empty",
+                        business_name: "No outreach prospects yet",
+                        city: "Add prospects in Supabase",
+                        niche: "",
+                        website: null,
+                        contact_name: null,
+                        contact_email: null,
+                        phone: null,
+                        lead_source: null,
+                        notes: null,
+                        status: "identified",
+                        last_contacted_at: null,
+                        next_follow_up_at: null,
+                        created_at: "",
+                      },
+                    ]
+                ).map((prospect) => (
+                  <article
+                    className="rounded-md border border-[#ebe7df] bg-[#fbfaf7] p-3"
+                    key={prospect.id}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-semibold">{prospect.business_name}</h3>
+                      {prospect.id !== "empty" ? (
+                        <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-[#565850]">
+                          {prospect.status.replace("_", " ")}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-sm text-[#565850]">
+                      {prospect.city}
+                      {prospect.niche ? ` | ${prospect.niche}` : ""}
+                      {prospect.lead_source ? ` | ${prospect.lead_source}` : ""}
+                    </p>
+                    {prospect.website || prospect.contact_email ? (
+                      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                        {prospect.website ? (
+                          <a className="font-semibold text-[#123c69]" href={prospect.website}>
+                            Website
+                          </a>
+                        ) : null}
+                        {prospect.contact_email ? (
+                          <a className="font-semibold text-[#123c69]" href={`mailto:${prospect.contact_email}`}>
+                            {prospect.contact_email}
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+
             <section className="rounded-lg border border-[#d7d1c4] bg-white p-5">
               <div className="flex items-center gap-3">
                 <UserRoundPlus className="text-[#d94f30]" size={24} aria-hidden="true" />
