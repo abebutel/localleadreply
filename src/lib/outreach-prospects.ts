@@ -114,6 +114,52 @@ export async function listRecentOutreachProspects(limit = 5) {
   return data as StoredOutreachProspect[];
 }
 
+export async function updateOutreachProspectStatus({
+  id,
+  status,
+  nextFollowUpAt = null,
+}: {
+  id: string;
+  status: OutreachProspectStatus;
+  nextFollowUpAt?: string | null;
+}) {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return { ok: false, reason: "Supabase is not configured." };
+  }
+
+  const patch: {
+    status: OutreachProspectStatus;
+    updated_at: string;
+    last_contacted_at?: string;
+    next_follow_up_at?: string | null;
+  } = {
+    status,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (status === "contacted") {
+    patch.last_contacted_at = new Date().toISOString();
+    patch.next_follow_up_at = nextFollowUpAt;
+  }
+
+  if (status === "replied" || status === "pilot_invited" || status === "not_fit") {
+    patch.next_follow_up_at = null;
+  }
+
+  const { error } = await supabase
+    .from("outreach_prospects")
+    .update(patch)
+    .eq("id", id);
+
+  if (error) {
+    return { ok: false, reason: error.message };
+  }
+
+  return { ok: true };
+}
+
 export async function getOutreachSummary(): Promise<OutreachSummary> {
   const supabase = getSupabaseAdmin();
 

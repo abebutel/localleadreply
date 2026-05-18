@@ -19,6 +19,8 @@ import { leadStatuses, listRecentLeads, type LeadStatus } from "@/lib/leads";
 import {
   getOutreachSummary,
   listRecentOutreachProspects,
+  outreachProspectStatuses,
+  type OutreachProspectStatus,
 } from "@/lib/outreach-prospects";
 import {
   listRecentPilotRequests,
@@ -27,6 +29,7 @@ import {
 } from "@/lib/pilot-requests";
 import {
   updateLeadStatusAction,
+  updateOutreachProspectStatusAction,
   updatePilotRequestStatusAction,
 } from "./actions";
 
@@ -92,6 +95,14 @@ const pilotRequestStatusLabels: Record<PilotRequestStatus, string> = {
   closed: "Closed",
 };
 
+const outreachStatusLabels: Record<OutreachProspectStatus, string> = {
+  identified: "Identified",
+  contacted: "Contacted",
+  replied: "Replied",
+  pilot_invited: "Pilot invited",
+  not_fit: "Not fit",
+};
+
 type DashboardLead =
   | {
       id: string;
@@ -128,7 +139,7 @@ export default async function AppDemoPage({ searchParams }: Props) {
     listRecentLeads(10),
     getAnalyticsSummary(7),
     listRecentPilotRequests(5),
-    listRecentOutreachProspects(5),
+    listRecentOutreachProspects(25),
     getOutreachSummary(),
   ]);
   const leads: DashboardLead[] =
@@ -351,7 +362,8 @@ export default async function AppDemoPage({ searchParams }: Props) {
                       <h3 className="font-semibold">{prospect.business_name}</h3>
                       {prospect.id !== "empty" ? (
                         <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-[#565850]">
-                          {prospect.status.replace("_", " ")}
+                          {outreachStatusLabels[prospect.status as OutreachProspectStatus] ||
+                            prospect.status.replace("_", " ")}
                         </span>
                       ) : null}
                     </div>
@@ -373,6 +385,36 @@ export default async function AppDemoPage({ searchParams }: Props) {
                           </a>
                         ) : null}
                       </div>
+                    ) : null}
+                    {prospect.next_follow_up_at ? (
+                      <p className="mt-2 text-xs font-semibold text-[#9b341f]">
+                        Follow up{" "}
+                        {new Intl.DateTimeFormat("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        }).format(new Date(prospect.next_follow_up_at))}
+                      </p>
+                    ) : null}
+                    {prospect.id !== "empty" ? (
+                      <form
+                        action={updateOutreachProspectStatusAction}
+                        className="mt-3 flex flex-wrap gap-2"
+                      >
+                        <input name="prospectId" type="hidden" value={prospect.id} />
+                        {outreachProspectStatuses
+                          .filter((status) => status !== prospect.status)
+                          .map((status) => (
+                            <button
+                              className="h-9 rounded-md border border-[#d7d1c4] bg-white px-3 text-xs font-semibold text-[#565850] transition hover:border-[#123c69] hover:text-[#123c69]"
+                              key={status}
+                              name="status"
+                              type="submit"
+                              value={status}
+                            >
+                              {outreachStatusLabels[status]}
+                            </button>
+                          ))}
+                      </form>
                     ) : null}
                   </article>
                 ))}
