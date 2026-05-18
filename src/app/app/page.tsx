@@ -15,8 +15,15 @@ import {
 import { getAnalyticsSummary } from "@/lib/analytics";
 import { hasAdminPassword } from "@/lib/admin-auth";
 import { leadStatuses, listRecentLeads, type LeadStatus } from "@/lib/leads";
-import { listRecentPilotRequests } from "@/lib/pilot-requests";
-import { updateLeadStatusAction } from "./actions";
+import {
+  listRecentPilotRequests,
+  pilotRequestStatuses,
+  type PilotRequestStatus,
+} from "@/lib/pilot-requests";
+import {
+  updateLeadStatusAction,
+  updatePilotRequestStatusAction,
+} from "./actions";
 
 export const metadata: Metadata = {
   title: "LocalLeadReply Demo Dashboard",
@@ -71,6 +78,13 @@ const statusStyles: Record<LeadStatus, string> = {
   contacted: "border-[#c8d6e5] bg-[#edf5fb] text-[#123c69]",
   booked: "border-[#b9dec9] bg-[#e6f2ec] text-[#1f7049]",
   lost: "border-[#f0c7b8] bg-[#fff4ed] text-[#9b341f]",
+};
+
+const pilotRequestStatusLabels: Record<PilotRequestStatus, string> = {
+  new: "New",
+  contacted: "Contacted",
+  qualified: "Qualified",
+  closed: "Closed",
 };
 
 type DashboardLead =
@@ -325,6 +339,27 @@ export default async function AppDemoPage({ searchParams }: Props) {
                           </a>
                         ) : null}
                       </div>
+                    ) : null}
+                    {request.id !== "empty" ? (
+                      <form
+                        action={updatePilotRequestStatusAction}
+                        className="mt-3 flex flex-wrap gap-2"
+                      >
+                        <input name="requestId" type="hidden" value={request.id} />
+                        {pilotRequestStatuses
+                          .filter((status) => status !== request.status)
+                          .map((status) => (
+                            <button
+                              className="h-9 rounded-md border border-[#d7d1c4] bg-white px-3 text-xs font-semibold text-[#565850] transition hover:border-[#123c69] hover:text-[#123c69]"
+                              key={status}
+                              name="status"
+                              type="submit"
+                              value={status}
+                            >
+                              {pilotRequestStatusLabels[status]}
+                            </button>
+                          ))}
+                      </form>
                     ) : null}
                   </article>
                 ))}

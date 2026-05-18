@@ -10,7 +10,7 @@ export type StoredPilotRequest = {
   website: string | null;
   phone: string | null;
   message: string | null;
-  status: string;
+  status: PilotRequestStatus;
   created_at: string;
 };
 
@@ -18,6 +18,24 @@ export type NewStoredPilotRequest = Omit<
   StoredPilotRequest,
   "id" | "status" | "created_at"
 >;
+
+export const pilotRequestStatuses = [
+  "new",
+  "contacted",
+  "qualified",
+  "closed",
+] as const;
+
+export type PilotRequestStatus = (typeof pilotRequestStatuses)[number];
+
+export function isPilotRequestStatus(
+  value: unknown,
+): value is PilotRequestStatus {
+  return (
+    typeof value === "string" &&
+    pilotRequestStatuses.includes(value as PilotRequestStatus)
+  );
+}
 
 export async function createPilotRequest(request: NewStoredPilotRequest) {
   const supabase = getSupabaseAdmin();
@@ -79,4 +97,29 @@ export async function countOpenPilotRequests() {
   }
 
   return count || 0;
+}
+
+export async function updatePilotRequestStatus(
+  id: string,
+  status: PilotRequestStatus,
+) {
+  const supabase = getSupabaseAdmin();
+
+  if (!supabase) {
+    return { ok: false, reason: "Supabase is not configured." };
+  }
+
+  const { error } = await supabase
+    .from("pilot_requests")
+    .update({
+      status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) {
+    return { ok: false, reason: error.message };
+  }
+
+  return { ok: true };
 }
