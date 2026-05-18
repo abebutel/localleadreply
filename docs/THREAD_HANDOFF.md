@@ -213,6 +213,14 @@ See:
 - `docs/OUTREACH_PLAYBOOK.md`
 - `docs/OUTREACH_IMPORT.md`
 
+Controlled outreach means small-batch validation, not a broad paid launch:
+- 20-50 hand-picked Florida plumbers.
+- Manual or very small-batch outreach.
+- 14-day pilot offer.
+- Email-first setup only.
+- No SMS claims until Twilio/A2P/opt-out/message logs are complete.
+- No paid subscription push until business/legal/payment readiness is handled.
+
 Protected outreach import:
 - Route: `/api/outreach-prospects`
 - Method: `POST`

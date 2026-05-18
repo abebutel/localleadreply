@@ -97,6 +97,19 @@ Social media accounts should be accessed through browser sessions or official co
 6. Send concise personalized outreach.
 7. Offer a 14-day pilot and measure booked calls or replies.
 
+## Controlled Outreach Definition
+
+The first campaign should validate demand without pretending the full SaaS is
+finished.
+
+- Track prospects in `public.outreach_prospects`.
+- Start with Florida plumbers only.
+- Use small batches and manual review.
+- Offer an unpaid or lightly assisted 14-day pilot.
+- Use email-first alerts until Twilio/A2P/opt-out work is complete.
+- Do not accept paid subscriptions until business/legal/payment readiness is
+  handled.
+
 ## First SEO Articles
 
 - Missed call text-back examples for plumbers.

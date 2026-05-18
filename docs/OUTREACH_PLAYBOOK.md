@@ -13,6 +13,71 @@ Offer:
 - One approved text-back.
 - No long contract.
 
+## Controlled Campaign Rules
+
+This campaign is customer discovery with a working concierge pilot, not a broad
+paid SaaS launch.
+
+Rules:
+- Start with 20-50 hand-picked prospects.
+- Use one niche only: Florida plumbers.
+- Send outreach manually or in very small batches.
+- Do not claim SMS is live until Twilio, A2P 10DLC, opt-out handling, and
+  message logging are complete.
+- Offer a 14-day pilot, not a paid subscription.
+- Stop adding volume if replies reveal confusion, trust concerns, or poor fit.
+
+Success signals:
+- 2-5 replies from the first 50 prospects.
+- 1-2 businesses willing to try a 14-day pilot.
+- At least one real lead captured through a pilot form.
+- The business owner says the alert/status workflow is useful.
+
+Stop or revise if:
+- Prospects think this is an AI receptionist or chatbot.
+- Prospects mainly ask for pricing before understanding the workflow.
+- No replies after 50 well-qualified, personalized prospects.
+- The workflow creates manual follow-up burden for the owner.
+
+## Prospect Status Workflow
+
+Use `public.outreach_prospects` to track campaign state.
+
+- `identified`: qualified prospect added, no outreach sent yet.
+- `contacted`: first message sent.
+- `replied`: prospect responded.
+- `pilot_invited`: prospect got a pilot setup link or next-step email.
+- `not_fit`: not a fit, bounced, declined, or should not be contacted again.
+
+Recommended cadence:
+
+1. Day 0: first email.
+2. Day 3 or 4: follow-up 1.
+3. Day 8 or 9: follow-up 2 and close the loop.
+4. After reply: update status to `replied`.
+5. If interested: update status to `pilot_invited`.
+6. If declined or irrelevant: update status to `not_fit`.
+
+Set `next_follow_up_at` for each follow-up so the dashboard and daily digest can
+surface due follow-ups.
+
+## Prospect Qualification
+
+Add a prospect only if at least two are true:
+
+- Website has a quote/contact/request-service form.
+- Offers urgent or time-sensitive plumbing services.
+- Shows paid ads, strong review volume, or active local SEO presence.
+- Has visible service area in Tampa, Orlando, Jacksonville, or Miami.
+- Follow-up speed plausibly matters for the sale.
+
+Good `lead_source` values:
+- `website form`
+- `emergency service page`
+- `Google Ads landing page`
+- `recent reviews`
+- `Facebook lead flow`
+
 ## Outreach Message
 
 Subject:
